@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:16
+    container_name: manutencao_db
+    restart: always
+    environment:
+      POSTGRES_USER: natan
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: pcm_fabrica
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
