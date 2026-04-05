@@ -3,16 +3,29 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import SideBarM from './SideBarMain/sideBar.jsx'
+import Layout from './SideBarMain/Layout.jsx'
+import OrdemServico from './OrdensDeServico/OrdemServico.jsx'
 
 const router = createBrowserRouter([
   {
-    path: "/registros-de-equipamentos",
-    element: <App />
-  },
-  {
-    path: "/side",
-    element: <SideBarM />
+    path: '/',
+    element: <Layout />, // O Layout abraça todo mundo
+    children: [
+      {
+        path: '/',
+        element: <div>Página de Início (Dashboard) - Em breve</div>
+      },
+      {
+        // Movido para DENTRO do children!
+        // Agora o App vai ser injetado no Outlet lá do Layout
+        path: '/equipamentos',
+        element: <App />
+      },
+      {
+        path: '/ordenservico',
+        element: <OrdemServico />
+      }
+    ]
   }
 ]);
 

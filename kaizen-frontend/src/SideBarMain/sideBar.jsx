@@ -10,21 +10,22 @@ import {
     ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import Logo from '../assets/kaizenlogo1.png';
+import { Link } from 'react-router-dom';
 
 const navigation = [
-    { name: 'Inicio', href: '#', icon: HomeIcon, current: true },
-    { name: 'Ordens de Serviço', href: '#', icon: WrenchScrewdriverIcon, current: false },
-    { name: 'Equipamentos', href: '#', icon: CubeIcon, current: false },
-    { name: 'Preventivas', href: '#', icon: ClipboardDocumentCheckIcon, current: false },
-    { name: 'Corretivas', href: '#', icon: ClipboardDocumentCheckIcon, current: false },
-    { name: 'Relatórios', href: '#', icon: ChartBarIcon, current: false },
-    { name: 'Mecânicos', href: '#', icon: ChartBarIcon, current: false },
-    { name: 'Eletricistas', href: '#', icon: ChartBarIcon, current: false },
-    { name: 'Cadastrar Usuário', href: '#', icon: ChartBarIcon, current: false },
-    { name: 'Desempenho Equipamentos', href: '#', icon: ChartBarIcon, current: false },
-    { name: 'Desempenho Mecânicos', href: '#', icon: ChartBarIcon, current: false },
-    { name: 'Desempenho Eletricistas', href: '#', icon: ChartBarIcon, current: false },
-    { name: 'Configurações', href: '#', icon: Cog6ToothIcon, current: false },
+    { name: 'Inicio', href: '/', icon: HomeIcon, current: true },
+    { name: 'Ordens de Serviço', href: '/ordenservico', icon: WrenchScrewdriverIcon, current: false },
+    { name: 'Equipamentos', href: '/equipamentos', icon: CubeIcon, current: false },
+    { name: 'Preventivas', href: '/preventivas', icon: ClipboardDocumentCheckIcon, current: false },
+    { name: 'Corretivas', href: '/corretivas', icon: ClipboardDocumentCheckIcon, current: false },
+    { name: 'Relatórios', href: '/relatorios', icon: ChartBarIcon, current: false },
+    { name: 'Mecânicos', href: '/mecanicos', icon: ChartBarIcon, current: false },
+    { name: 'Eletricistas', href: '/eletricistas', icon: ChartBarIcon, current: false },
+    { name: 'Cadastrar Usuário', href: '/usuarios', icon: ChartBarIcon, current: false },
+    { name: 'Desempenho Equipamentos', href: '/desempenho-equipamentos', icon: ChartBarIcon, current: false },
+    { name: 'Desempenho Mecânicos', href: '/desempenho-mecanicos', icon: ChartBarIcon, current: false },
+    { name: 'Desempenho Eletricistas', href: '/desempenho-eletricistas', icon: ChartBarIcon, current: false },
+    { name: 'Configurações', href: '/configuracoes', icon: Cog6ToothIcon, current: false },
 ];
 
 function classNames(...classes) {
@@ -90,12 +91,9 @@ export default function Sidebar() {
                         <ul role="list" className="-mx-2 space-y-2">
                             {menuItems.map((item) => (
                                 <li key={item.name}>
-                                    <a
-                                        href={item.href}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            handleMenuClick(item);
-                                        }}
+                                    <Link
+                                        to={item.href}
+                                        onClick={() => handleMenuClick(item)}
                                         title={!isExpanded ? item.name : undefined}
                                         className={classNames(
                                             item.current
@@ -115,7 +113,7 @@ export default function Sidebar() {
                                         {isExpanded && (
                                             <span className="whitespace-nowrap">{item.name}</span>
                                         )}
-                                    </a>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
