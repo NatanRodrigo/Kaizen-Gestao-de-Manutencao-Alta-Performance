@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-PcmApplication<pcm>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.natan.pcm.PcmApplication",
+            "projectName": "pcm",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
