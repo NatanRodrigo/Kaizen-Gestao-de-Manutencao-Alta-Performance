@@ -2,8 +2,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App.jsx";
+import Home from "./DashbordHome/Home.jsx";
 import "./index.css";
-import OrdemServico from "./OrdensDeServico/GerarOrdemServico.jsx";
+import GerarOrdemServico from "./OrdensDeServico/GerarOrdemServico.jsx";
+import OrdemServico from "./OrdensDeServico/OrdemServico.jsx";
 import Layout from "./SideBarMain/Layout.jsx";
 
 const router = createBrowserRouter([
@@ -13,7 +15,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <div>Página de Início (Dashboard) - Em breve</div>,
+        element: <Home />,
       },
       {
         // Movido para DENTRO do children!
@@ -24,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: "/ordenservico",
         element: <OrdemServico />,
+      },
+      {
+        path: "/gerarordemservico",
+        element: <GerarOrdemServico />,
       },
     ],
   },
