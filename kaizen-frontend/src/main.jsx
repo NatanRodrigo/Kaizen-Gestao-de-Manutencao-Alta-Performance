@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Agenda from "./Agenda/AgendaCalendario.jsx";
 import App from "./App.jsx";
 import Home from "./DashbordHome/Home.jsx";
 import "./index.css";
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: "/gerarordemservico",
         element: <GerarOrdemServico />,
+      },
+      {
+        path: "/agenda",
+        element: <Agenda />,
       },
     ],
   },
