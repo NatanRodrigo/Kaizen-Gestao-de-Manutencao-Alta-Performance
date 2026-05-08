@@ -29,8 +29,8 @@ const navigation = [
     name: "Manutenções",
     icon: ClipboardDocumentCheckIcon,
     subItems: [
-      { name: "Preventivas", href: "/preventivas" },
-      { name: "Corretivas", href: "/corretivas" },
+      { name: "Preventivas", href: "/preventiva" },
+      { name: "Corretivas", href: "/corretiva" },
     ],
   },
   {
@@ -39,7 +39,7 @@ const navigation = [
     subItems: [
       { name: "Mecânicos", href: "/mecanicos" },
       { name: "Eletricistas", href: "/eletricistas" },
-      { name: "Cadastrar Usuário", href: "/usuarios" },
+      { name: "Cadastrar Usuário", href: "/cadastrouser" },
     ],
   },
   {

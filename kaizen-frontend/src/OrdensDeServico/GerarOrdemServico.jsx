@@ -17,6 +17,16 @@ export default function GerarOrdemServico() {
     assinaturaSupervisor: "",
   });
 
+  const [listaPecas, setListaPecas] = useState([]);
+
+  // Busca as peças do banco (AJUSTE A URL SE PRECISAR)
+  useEffect(() => {
+    fetch("http://localhost:8080/api/pecas") // <- confira se a sua rota de peças é essa
+      .then((res) => res.json())
+      .then((data) => setListaPecas(data))
+      .catch((err) => console.error("Erro ao buscar peças:", err));
+  }, []);
+
   const [pecas, setPecas] = useState([{ descricao: "", qtd: "", cod: "" }]);
   const [salvando, setSalvando] = useState(false);
 
@@ -80,21 +90,40 @@ export default function GerarOrdemServico() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Funções de peças
+  // Agora a peça tem um controle de "mostrarDropdown"
   const addPeca = () =>
-    setPecas([...pecas, { descricao: "", qtd: "", cod: "" }]);
+    setPecas([
+      ...pecas,
+      { descricao: "", qtd: "1", cod: "", showDropdown: false },
+    ]);
+
   const removePeca = (index) => {
     if (pecas.length > 1) setPecas(pecas.filter((_, i) => i !== index));
   };
+
   const updatePeca = (index, campo, valor) => {
     const newList = [...pecas];
     newList[index][campo] = valor;
+
+    // Se digitou na descrição, abre o dropdown. Se apagou, fecha.
+    if (campo === "descricao") {
+      newList[index].showDropdown = valor.length > 0;
+    }
+    setPecas(newList);
+  };
+
+  const selecionarPecaBanco = (index, pecaBanco) => {
+    const newList = [...pecas];
+    newList[index].descricao = pecaBanco.nomePeca;
+    newList[index].cod = pecaBanco.codigoPeca;
+    newList[index].showDropdown = false; // Fecha a listinha após clicar
     setPecas(newList);
   };
 
   // Monta o pacote para o Java (agora com o ID do equipamento dinâmico!)
   const montarPayloadParaJava = () => {
     return {
+      pecasFront: pecas.filter((p) => p.descricao.trim() !== ""),
       numeroOs:
         "OS-" +
         Math.floor(Math.random() * 10000)
@@ -364,6 +393,8 @@ export default function GerarOrdemServico() {
               4. Materiais e Peças Utilizados
             </h3>
 
+            {/*Peças ultilizadas*/}
+
             <div className="grid grid-cols-12 gap-3 mb-2 px-1 text-xs font-bold text-slate-500 uppercase tracking-wider">
               <div className="col-span-7">Descrição da Peça</div>
               <div className="col-span-2">Qtd</div>
@@ -371,64 +402,105 @@ export default function GerarOrdemServico() {
               <div className="col-span-1 print:hidden"></div>
             </div>
 
-            <div className="space-y-2">
-              {pecas.map((peca, index) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-12 gap-3 items-center"
-                >
-                  <div className="col-span-7">
-                    <input
-                      value={peca.descricao}
-                      onChange={(e) =>
-                        updatePeca(index, "descricao", e.target.value)
-                      }
-                      className="w-full bg-white text-slate-700 text-sm border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-all print:border-b print:border-slate-300 print:rounded-none print:px-0"
-                      placeholder="Material ou peça"
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <input
-                      type="number"
-                      value={peca.qtd}
-                      onChange={(e) => updatePeca(index, "qtd", e.target.value)}
-                      className="w-full bg-white text-slate-700 text-sm border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-all print:border-b print:border-slate-300 print:rounded-none print:px-0"
-                      placeholder="0"
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <input
-                      value={peca.cod}
-                      onChange={(e) => updatePeca(index, "cod", e.target.value)}
-                      className="w-full bg-white text-slate-700 text-sm border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-all print:border-b print:border-slate-300 print:rounded-none print:px-0"
-                      placeholder="Cód"
-                    />
-                  </div>
-                  <div className="col-span-1 flex justify-center print:hidden">
-                    {pecas.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removePeca(index)}
-                        className="text-slate-400 hover:text-red-500 transition-colors p-1"
-                      >
-                        <svg
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth="2"
+            <div className="space-y-3">
+              {pecas.map((peca, index) => {
+                // Filtra as peças em tempo real para ESTA linha específica
+                const pecasFiltradas = peca.showDropdown
+                  ? listaPecas.filter(
+                      (p) =>
+                        p.nomePeca
+                          .toLowerCase()
+                          .includes(peca.descricao.toLowerCase()) ||
+                        p.codigoPeca
+                          .toLowerCase()
+                          .includes(peca.descricao.toLowerCase()),
+                    )
+                  : [];
+
+                return (
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 gap-3 items-start relative"
+                  >
+                    {/* COLUNA DESCRIÇÃO (COM AUTOCOMPLETE) */}
+                    <div className="col-span-7 relative">
+                      <input
+                        value={peca.descricao}
+                        onChange={(e) =>
+                          updatePeca(index, "descricao", e.target.value)
+                        }
+                        autoComplete="off"
+                        className="w-full bg-white text-slate-700 text-sm border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-all print:border-b print:border-slate-300 print:rounded-none print:px-0"
+                        placeholder="Digite o nome ou código..."
+                      />
+
+                      {/* DROPDOWN FLUTUANTE DA PEÇA */}
+                      {peca.showDropdown && pecasFiltradas.length > 0 && (
+                        <ul className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-48 overflow-y-auto print:hidden">
+                          {pecasFiltradas.map((pBanco) => (
+                            <li
+                              key={pBanco.id}
+                              onClick={() => selecionarPecaBanco(index, pBanco)}
+                              className="px-4 py-2 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-none"
+                            >
+                              <div className="font-bold text-slate-800 text-sm">
+                                {pBanco.nomePeca}
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                Cód: {pBanco.codigoPeca} • Estoque:{" "}
+                                {pBanco.quantidadeEstoque}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
+                    <div className="col-span-2">
+                      <input
+                        type="number"
+                        min="1"
+                        value={peca.qtd}
+                        onChange={(e) =>
+                          updatePeca(index, "qtd", e.target.value)
+                        }
+                        className="w-full bg-white text-slate-700 text-sm border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-all print:border-b print:border-slate-300 print:rounded-none print:px-0"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <input
+                        readOnly
+                        value={peca.cod}
+                        className="w-full bg-slate-100/50 text-slate-600 text-sm border border-slate-200 rounded-lg px-4 py-2 cursor-not-allowed print:border-b print:border-slate-300 print:rounded-none print:px-0 print:bg-transparent"
+                        placeholder="Auto"
+                      />
+                    </div>
+                    <div className="col-span-1 flex justify-center pt-2 print:hidden">
+                      {pecas.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removePeca(index)}
+                          className="text-slate-400 hover:text-red-500 transition-colors"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </button>
-                    )}
+                          <svg
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <button

@@ -30,4 +30,10 @@ public class PecaController {
     public Peca cadastrar(@RequestBody Peca peca) {
         return repository.save(peca);
     }
+
+    // Adicione isso no seu PecaController para salvar várias peças de uma vez!
+    @PostMapping("/lote")
+    public List<Peca> cadastrarLote(@RequestBody List<Peca> pecas) {
+        return repository.saveAll(pecas);
+    }
 }

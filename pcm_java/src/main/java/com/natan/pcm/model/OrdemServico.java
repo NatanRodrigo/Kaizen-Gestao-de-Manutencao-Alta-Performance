@@ -75,6 +75,18 @@ public class OrdemServico {
 
     // Usuario futurio nivel Alto(3)(Tecologia da informação)
 
+    // O pacote é jakarta.persistence.Transient
+    @jakarta.persistence.Transient
+    private java.util.List<java.util.Map<String, String>> pecasFront;
+
+    public java.util.List<java.util.Map<String, String>> getPecasFront() {
+        return pecasFront;
+    }
+
+    public void setPecasFront(java.util.List<java.util.Map<String, String>> pecasFront) {
+        this.pecasFront = pecasFront;
+    }
+
     // Construtor padrão
     public OrdemServico() {
         this.dataAbertura = LocalDateTime.now();

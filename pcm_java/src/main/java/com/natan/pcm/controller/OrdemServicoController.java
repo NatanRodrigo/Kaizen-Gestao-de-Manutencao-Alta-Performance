@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders; // Adicionado para o PDF
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType; // Adicionado para o PDF
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,10 +16,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.natan.pcm.model.OrdemServico;
+import com.natan.pcm.model.TipoManutencao;
+import com.natan.pcm.repository.EquipamentoRepository;
 import com.natan.pcm.repository.OrdemServicoRepository;
 import com.natan.pcm.service.OrdemServicoPdfService;
 
@@ -29,15 +32,25 @@ import com.natan.pcm.service.OrdemServicoPdfService;
 public class OrdemServicoController {
 
     @Autowired
+    private EquipamentoRepository equipRepository;
+
+    @Autowired
     private OrdemServicoRepository repository;
 
     // 0. SERVIÇO DE PDF INJETADO AQUI
     @Autowired
     private OrdemServicoPdfService pdfService;
 
-    // 1. BUSCAR TODAS AS OS (Para listar naquela sua tela principal)
+    // 1. BUSCAR AS OS (Com ou sem filtro para as telas do React)
     @GetMapping
-    public List<OrdemServico> listarTodas() {
+    public List<OrdemServico> listarTodas(@RequestParam(required = false) String tipo) {
+        // Se o React mandar um tipo (ex: PREVENTIVA), a gente filtra
+        if (tipo != null && !tipo.isEmpty()) {
+            TipoManutencao tipoEnum = TipoManutencao.valueOf(tipo.toUpperCase());
+            return repository.findByTipoManutencao(tipoEnum);
+        }
+
+        // Se não mandar nada, devolve todas
         return repository.findAll();
     }
 
@@ -89,31 +102,33 @@ public class OrdemServicoController {
     // ========================================================================
     @PostMapping("/gerar-pdf")
     public ResponseEntity<byte[]> salvarEGerarPdf(@RequestBody OrdemServico novaOs) {
-
         try {
-            // 1. Salva a OS no banco enviada pelo React (só com os IDs)
-            OrdemServico osSalva = repository.save(novaOs);
 
-            // 2. BUSCA A OS COMPLETA NO BANCO!
-            // Isso garante que os nomes do Equipamento e dos Técnicos sejam carregados
+            OrdemServico osSalva = repository.save(novaOs);
             OrdemServico osCompleta = repository.findById(osSalva.getId()).orElse(osSalva);
 
-            // 3. Chama o serviço de PDF passando a OS Completa
-            byte[] pdfBytes = pdfService.gerarPdf(osCompleta);
+            // 1. FORÇA A BUSCA DO NOME DO EQUIPAMENTO
+            if (osCompleta.getEquipamento() != null && osCompleta.getEquipamento().getId() != null) {
+                equipRepository.findById(osCompleta.getEquipamento().getId())
+                        .ifPresent(osCompleta::setEquipamento);
+            }
 
-            // 4. Configura os Headers
+            // 2. MÁGICA AQUI: Recupera as peças que o banco ignorou
+            // Copia as peças da 'novaOs' (que veio do React) para a 'osCompleta' (que vai
+            // pro PDF)
+            osCompleta.setPecasFront(novaOs.getPecasFront());
+
+            // 3. Agora sim, manda gerar o PDF
+            byte[] pdfBytes = pdfService.gerarPdf(osCompleta);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-
             String numeroIdentificador = osCompleta.getNumeroOs() != null ? osCompleta.getNumeroOs()
                     : String.valueOf(osCompleta.getId());
             headers.setContentDispositionFormData("inline", "OS_" + numeroIdentificador + ".pdf");
             headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
 
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
-
         } catch (Exception e) {
-            // Se der qualquer erro, vai printar de vermelho no seu console do VS Code
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

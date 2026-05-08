@@ -94,7 +94,30 @@ public class OrdemServicoPdfService {
             desc.setSpacingAfter(15);
             document.add(desc);
 
-            // === 3. RELATÓRIO TÉCNICO ===
+            // === 3. MATERIAIS E PEÇAS UTILIZADOS ===
+            if (os.getPecasFront() != null && !os.getPecasFront().isEmpty()) {
+                document.add(new Paragraph("3. Materiais e Peças Utilizados", fonteNegrito));
+                PdfPTable tablePecas = new PdfPTable(3);
+                tablePecas.setWidthPercentage(100);
+                tablePecas.setWidths(new float[] { 6f, 2f, 2f }); // Tamanho das colunas
+                tablePecas.setSpacingBefore(5);
+                tablePecas.setSpacingAfter(15);
+
+                // Cabeçalho da tabela
+                tablePecas.addCell(new Phrase("Descrição da Peça", fonteNegrito));
+                tablePecas.addCell(new Phrase("Qtd", fonteNegrito));
+                tablePecas.addCell(new Phrase("Código", fonteNegrito));
+
+                // Preenche as linhas com o que veio do React
+                for (java.util.Map<String, String> peca : os.getPecasFront()) {
+                    tablePecas.addCell(new Phrase(peca.getOrDefault("descricao", ""), fontePadrao));
+                    tablePecas.addCell(new Phrase(peca.getOrDefault("qtd", ""), fontePadrao));
+                    tablePecas.addCell(new Phrase(peca.getOrDefault("cod", ""), fontePadrao));
+                }
+                document.add(tablePecas);
+            }
+
+            // === 4. RELATÓRIO TÉCNICO ===
             document.add(new Paragraph("3. Relatório Técnico da Atividade", fonteNegrito));
             Paragraph rel = new Paragraph(relatorio, fontePadrao);
             rel.setSpacingBefore(5);
