@@ -35,6 +35,10 @@ public class Usuario {
     @Column(name = "gestor")
     private String gestor;
 
+    // NOVO CAMPO: Vai salvar o nome/caminho do arquivo da foto
+    @Column(name = "foto_url")
+    private String fotoUrl;
+
     // Getters e Setters
 
     // ID
@@ -98,6 +102,14 @@ public class Usuario {
 
     public void setGestor(String gestor) {
         this.gestor = gestor;
+    }
+
+    public String getFotoUrl() {
+        return fotoUrl;
+    }
+
+    public void setFotoUrl(String fotoUrl) {
+        this.fotoUrl = fotoUrl;
     }
 
 }

@@ -64,16 +64,21 @@ export default function ListaOrdensServico({ tipo }) {
   const avancarStatus = async (os) => {
     const statusAtual = calcularStatus(os);
     const osAtualizada = { ...os };
-    const dataHoraAgora = new Date().toISOString();
+
+    // O truque para pegar a hora local exata do Brasil sem os milissegundos feios
+    const agora = new Date();
+    const timezoneOffset = agora.getTimezoneOffset() * 60000; // Diferença do fuso horário
+    const dataHoraLocal = new Date(agora.getTime() - timezoneOffset)
+      .toISOString()
+      .slice(0, 19); // Corta os milissegundos e o 'Z', deixando "YYYY-MM-DDTHH:mm:ss"
 
     if (statusAtual === "ABERTA") {
-      osAtualizada.dataHoraInicio = dataHoraAgora; // <- Ajustado aqui
+      osAtualizada.dataHoraInicio = dataHoraLocal;
     } else if (statusAtual === "EM_ANDAMENTO") {
-      osAtualizada.dataHoraFim = dataHoraAgora; // <- Ajustado aqui
+      osAtualizada.dataHoraFim = dataHoraLocal;
     } else {
       return; // Se já está concluída, não faz nada
     }
-
     try {
       const response = await fetch(
         `http://localhost:8080/api/ordens-servico/${os.id}`,

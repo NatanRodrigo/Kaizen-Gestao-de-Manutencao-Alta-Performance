@@ -110,19 +110,30 @@ export default function Sidebar() {
       {/* Área da Logo */}
       <div
         className={classNames(
-          "flex h-20 shrink-0 items-center bg-slate-950 border-b border-slate-800/50 transition-all duration-300",
+          "flex h-20 shrink-0 items-center bg-slate-950 border-b border-slate-800/80 transition-all duration-300",
           isExpanded ? "px-6" : "px-0 justify-center",
         )}
       >
-        <div className="flex items-center gap-3 overflow-hidden cursor-pointer">
-          <div className="h-10 w-10 shrink-0 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/20">
-            {/* Se o seu logo for uma imagem branca, ela fica top com esse fundo gradiente */}
-            <img src={Logo} alt="Kaizen" className="h-6 w-6 object-contain" />
+        <div className="flex items-center gap-3 overflow-hidden cursor-pointer group">
+          {/* Removido o fundo azul. Aumentei de w-10 para w-12. 
+              Adicionado um brilho ciano sutil e um leve zoom quando passa o mouse (group-hover) */}
+          <div className="h-12 w-12 shrink-0 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-[0_0_12px_rgba(34,211,238,0.4)]">
+            <img
+              src={Logo}
+              alt="Kaizen Cortex"
+              className="h-full w-full object-contain"
+            />
           </div>
+
+          {/* Texto do Menu Expandido */}
           {isExpanded && (
-            <span className="text-white font-black text-2xl tracking-tight whitespace-nowrap">
-              KAIZEN
-            </span>
+            <div className="flex flex-col justify-center transition-opacity duration-300">
+              <span className="text-white font-black text-2xl tracking-widest whitespace-nowrap leading-none">
+                KAIZEN
+              </span>
+              {/* Mantendo a identidade industrial/tech com essa fonte menorzinha embaixo */}
+              <span className="text-[10px] text-cyan-400 font-mono tracking-[0.2em] whitespace-nowrap mt-1"></span>
+            </div>
           )}
         </div>
       </div>

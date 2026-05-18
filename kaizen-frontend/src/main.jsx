@@ -6,6 +6,7 @@ import App from "./App.jsx";
 import CadastroUser from "./CadastroUsuario/CadastrarUsuario.jsx";
 import Home from "./DashbordHome/Home.jsx";
 import "./index.css";
+import Login from "./login/Login.jsx";
 import GerarOrdemServico from "./OrdensDeServico/GerarOrdemServico.jsx";
 import ListaOrdensServico from "./OrdensDeServico/ListaOrdensServico.jsx";
 import OrdemServico from "./OrdensDeServico/OrdemServico.jsx";
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
       {
         path: "/cadastrouser",
         element: <CadastroUser />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
       },
     ],
   },
